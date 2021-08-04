@@ -34,7 +34,7 @@
           </ul> -->
           <ul class="list-group list-group-flush text-left" id="todoList">
             
-            <li  v-for="item in todoList" :key="item.todo" class="list-group-item"  v-if="isActive ==='all'">
+            <li  v-for="item in todoList" :key="item.id" class="list-group-item"  v-if="isActive ==='all'">
               <div class="d-flex">
                 <div class="form-check">
                   <div>
@@ -47,7 +47,7 @@
                 </button>
               </div>
             </li>
-            <li  v-for="item in filterData_ing" :key="item.todo" class="list-group-item" v-else-if="isActive ==='ing'">
+            <li  v-for="item in filterData_ing" :key="item.status" class="list-group-item" v-else-if="isActive ==='ing'">
               <div class="d-flex">
                 <div class="form-check">
                   <div>
