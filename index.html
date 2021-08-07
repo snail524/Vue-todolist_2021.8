@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <style>
+      .completed {
+        text-decoration: line-through
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <div id="app" class="container my-3">
+        <div class="input-group mb-3">
+          <span class="input-group-text">待辦事項</span>
+          <input type="text" class="form-control" placeholder="準備要做的任務"
+            id="newTodo" v-model="newTodo">
+          <button class="btn btn-primary" type="button" id="addTodo" @click="additem">新增</button>
+          
+        </div>
+        <div class="card text-center">
+          <!-- <ul>
+            <li v-for="item in todoList" :key="item.id">
+              {{ item.todo }}
+            </li>
+          </ul> -->
+          <ul class="list-group list-group-flush text-left" id="todoList">
+            
+            <li  v-for="item in todoList" :key="item.id" class="list-group-item"  v-if="isActive ==='all'">
+              <div class="d-flex">
+                <div class="form-check">
+                  <div>
+                    <input id="a" type="checkbox" class="form-check-input" @dbclick="edit(item)" 
+                    v-model="item.iscomplete" value="completed">
+                    <label  @dblclick="edit(item)" for="a" :class="{completed: item.iscomplete}" >{{item.todo}}</label>
+                  </div>
+                </div>
+                <button type="button" class="btn-close ms-auto remove" @click="remove(item)">
+                </button>
+              </div>
+            </li>
+            <li  v-for="item in filterData_ing" :key="item.status" class="list-group-item" v-else-if="isActive ==='ing'">
+              <div class="d-flex">
+                <div class="form-check">
+                  <div>
+                    <input id="a" type="checkbox" class="form-check-input" @dbclick="edit(item)" 
+                    v-model="item.iscomplete" value="completed">
+                    <label  @dblclick="edit(item)" for="a" :class="{completed: item.iscomplete}" >{{item.todo}}</label>
+                  </div>
+                </div>
+                <button type="button" class="btn-close ms-auto remove" @click="remove(item)">
+                </button>
+              </div>
+            </li>
+            <li  v-for="item in filterData_finish" :key="item.todo" class="list-group-item" v-else-if="isActive ==='finish'">
+              <div class="d-flex">
+                <div class="form-check">
+                  <div>
+                    <input id="a" type="checkbox" class="form-check-input" @dbclick="edit(item)" 
+                    v-model="item.iscomplete" value="completed">
+                    <label  @dblclick="edit(item)" for="a" :class="{completed: item.iscomplete}" >{{item.todo}}</label>
+                  </div>
+                </div>
+                <button type="button" class="btn-close ms-auto remove" @click="remove(item)">
+                </button>
+              </div>
+            </li>
+      
+
+            <li  class="list-group-item">
+              <div class="d-flex">
+                <div class="form-check">
+                  <input @keyup.enter="finish(item)" class="col-form-label" type="text" v-model="temp.todo" placeholder="雙擊編輯"/> 
+                  <label for="" style="margin-left: 1rem;">完成按enter
+                  </label>
+                </div>
+              </div>
+            </li>
+          </ul>
+          <div class="card-footer d-flex justify-content-between">
+            <span v-if="isActive ==='all'">有 <span id="taskCount" v-text="todoList.length"  ></span> 筆任務</span>
+            <span v-else-if="isActive ==='ing'">有 <span id="taskCount" v-text="filterData_ing.length"  ></span> 筆任務</span>
+            <span v-else-if="isActive ==='finish'">有 <span id="taskCount" v-text="filterData_finish.length"  ></span> 筆任務</span>
+            <div>
+              <a href="#" class="me-3" :class="{active: isActive ==='all'}" @click="isActive = 'all' " >全部</a>
+              <a href="#" class="me-3" :class="{active: isActive ==='ing'}" @click="isActive='ing'">未完成</a>
+              <a href="#" class="me-3" :class="{active: isActive ==='finish'}" @click="isActive='finish'">已完成</a>
+              <a href="#" @click="reset" >清除所有任務</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8"
+      crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/vue@next"></script>
+    <script>
+      Vue.createApp({
+        data() {
+          return {
+            newTodo: '我是誰',
+            // todoList: [],
+            text: '我是誰',
+            edititem: '',
+            isActive: 'all',
+            temp: {},
+            todoList: JSON.parse(localStorage.getItem('history'))||[ ],
+          }
+        },
+        methods: {
+          additem(){
+            if(this.newTodo ==''){
+              return;
+            };
+            // console.log(this.todoList);
+            this.todoList.push({
+              id: this.todoList.length + 1 ,
+              todo: this.newTodo ,
+              arrayClass:[],
+              iscomplete: false
+            });
+            this.newTodo='';
+            localStorage.setItem('history',JSON.stringify(this.todoList));
+
+          },
+          remove(item){
+            
+            const index = this.todoList.findIndex(obj => obj.id === item.id);
+            this.todoList.splice(index,1);
+            localStorage.setItem('history',JSON.stringify(this.todoList));
+
+          },
+          edit(item){
+
+            console.log(item);
+            this.temp ={...item}
+
+          },
+          finish(item){
+            console.log('enter');
+            const index = this.todoList.findIndex(obj => obj.id === this.temp.id);
+            console.log(index);
+            this.todoList[index]=this.temp;
+            this.temp={};
+            localStorage.setItem('history',JSON.stringify(this.todoList));
+
+          },
+          reset(item){
+            this.todoList=[]
+            localStorage.clear();
+
+          }
+          
+        },
+        computed:{
+          filterData_ing(){
+            const newData=this.todoList.filter(item=>{
+              return item.iscomplete == false
+
+            })
+            localStorage.setItem('history',JSON.stringify(this.todoList));
+
+            return newData;
+          },
+          filterData_finish(){
+            const newData=this.todoList.filter(item=>{
+              return item.iscomplete == true
+            })
+            localStorage.setItem('history',JSON.stringify(this.todoList));
+            return newData;
+          }
+        },
+      }).mount('#app');
+    </script>
+  </body>
+
+</html>
