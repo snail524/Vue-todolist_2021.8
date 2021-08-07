@@ -27,11 +27,7 @@
           
         </div>
         <div class="card text-center">
-          <!-- <ul>
-            <li v-for="item in todoList" :key="item.id">
-              {{ item.todo }}
-            </li>
-          </ul> -->
+       
           <ul class="list-group list-group-flush text-left" id="todoList">
             
             <li  v-for="item in todoList" :key="item.id" class="list-group-item"  v-if="isActive ==='all'">
@@ -102,85 +98,93 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8"
       crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/vue@next"></script>
-    <script>
-      Vue.createApp({
-        data() {
-          return {
-            newTodo: '我是誰',
-            // todoList: [],
-            text: '我是誰',
-            edititem: '',
-            isActive: 'all',
-            temp: {},
-            todoList: JSON.parse(localStorage.getItem('history'))||[ ],
-          }
-        },
-        methods: {
-          additem(){
-            if(this.newTodo ==''){
+    <!-- <script src="https://unpkg.com/vue@next"></script> -->
+    <script type="module">
+      import { createApp , ref, reactive , onMounted ,computed} from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.0-beta.7/vue.esm-browser.min.js';
+      const app = createApp({
+        setup(){
+          const newTodo = ref('我是誰');
+          const text = ref('我是誰');
+          const edititem = ref('');
+          const isActive= ref('all');
+          const temp = ref({});
+          const todoList = ref(JSON.parse(localStorage.getItem('history'))||[ ]);
+
+          function additem(){
+            if(newTodo.value ==''){
               return;
             };
             // console.log(this.todoList);
-            this.todoList.push({
-              id: this.todoList.length + 1 ,
-              todo: this.newTodo ,
+            todoList.value.push({
+              id: todoList.value.length + 1 ,
+              todo: newTodo.value ,
               arrayClass:[],
               iscomplete: false
             });
-            this.newTodo='';
-            localStorage.setItem('history',JSON.stringify(this.todoList));
-
-          },
-          remove(item){
-            
-            const index = this.todoList.findIndex(obj => obj.id === item.id);
-            this.todoList.splice(index,1);
-            localStorage.setItem('history',JSON.stringify(this.todoList));
-
-          },
-          edit(item){
-
-            console.log(item);
-            this.temp ={...item}
-
-          },
-          finish(item){
-            console.log('enter');
-            const index = this.todoList.findIndex(obj => obj.id === this.temp.id);
-            console.log(index);
-            this.todoList[index]=this.temp;
-            this.temp={};
-            localStorage.setItem('history',JSON.stringify(this.todoList));
-
-          },
-          reset(item){
-            this.todoList=[]
-            localStorage.clear();
+            newTodo.value='';
+            localStorage.setItem('history',JSON.stringify(todoList.value));
+          }
+          function remove(item){
+            const index = todoList.value.findIndex(obj => obj.id === item.id);
+            todoList.value.splice(index,1);
+            localStorage.setItem('history',JSON.stringify(todoList.value));
 
           }
-          
-        },
-        computed:{
-          filterData_ing(){
-            const newData=this.todoList.filter(item=>{
+
+          function edit(item){
+            console.log(item);
+            temp.value ={...item}
+
+          }
+          function finish(item){
+            console.log('enter');
+            const index = todoList.value.findIndex(obj => obj.id === temp.value.id);
+            console.log(index);
+            todoList.value[index]=temp.value;
+            temp.value={};
+            localStorage.setItem('history',JSON.stringify(todoList.value));
+          }
+          function  reset(item){
+            todoList.value=[]
+            localStorage.clear();
+          }
+
+          const filterData_ing = computed(()=>{
+            const newData=todoList.value.filter(item=>{
               return item.iscomplete == false
-
             })
-            localStorage.setItem('history',JSON.stringify(this.todoList));
-
+            localStorage.setItem('history',JSON.stringify(todoList.value));
             return newData;
-          },
-          filterData_finish(){
-            const newData=this.todoList.filter(item=>{
+          })
+
+          const filterData_finish = computed(()=>{
+            const newData=todoList.value.filter(item=>{
               return item.iscomplete == true
             })
-            localStorage.setItem('history',JSON.stringify(this.todoList));
+            localStorage.setItem('history',JSON.stringify(todoList.value));
             return newData;
+          })
+
+          return{
+            newTodo,
+            text,
+            edititem,
+            isActive,
+            temp,
+            todoList,
+            additem,
+            remove,
+            edit,
+            finish,
+            reset,
+            filterData_ing,
+            filterData_finish
           }
-        },
-      }).mount('#app');
+        }
+      });
+      app.mount('#app')
     </script>
+    
   </body>
 
 </html>
